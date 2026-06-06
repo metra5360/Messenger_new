@@ -1,3 +1,4 @@
+// НАЛАШТУВАННЯ SUPABASE (Залиш порожніми лапки для роботи в автономному демо-режимі)
 const SUPABASE_URL = ""; 
 const SUPABASE_KEY = ""; 
 
@@ -7,22 +8,22 @@ if (SUPABASE_URL && SUPABASE_KEY) {
 }
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-let userGlyphs = {}; // Малюнки користувача: {'A': 'base64_data', ...}
+let userGlyphs = {}; 
 let isDesignMode = false;
 let currentLetterToEdit = null;
 let currentInputLetters = [];
 
-// Елементи Canvas
+// Налаштування Canvas для малювання
 const canvas = document.getElementById('paint-canvas');
 const ctx = canvas.getContext('2d');
 let isDrawing = false;
 
 ctx.strokeStyle = '#ffffff'; 
-ctx.lineWidth = 4;
+ctx.lineWidth = 5;
 ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
 
-// Логіка малювання на полотні
+// Функції відстеження малювання
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', draw);
 canvas.addEventListener('mouseup', stopDrawing);
@@ -52,18 +53,20 @@ document.getElementById('btn-clear-canvas').onclick = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
-// Збереження малюнку у клітинку
+// Збереження малюнку гліфа
 document.getElementById('btn-save-canvas').onclick = () => {
     const imageData = canvas.toDataURL('image/png');
     userGlyphs[currentLetterToEdit] = imageData;
     
     document.getElementById('drawing-popup').classList.remove('active');
+    document.getElementById('drawing-popup').setAttribute('aria-hidden', 'true');
     renderKeyboard();
 };
 
-// Створення 26 порожніх клітинок при старті
+// Генерація 26 клітинок матриці
 function renderKeyboard() {
     const grid = document.getElementById('keyboard-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     
     ALPHABET.forEach(letter => {
@@ -72,25 +75,20 @@ function renderKeyboard() {
         
         if (userGlyphs[letter]) {
             key.classList.add('has-drawing');
-            key.innerHTML = `<img src="${userGlyphs[letter]}">`;
-        } else {
-            // Клітинка залишається порожньою (стилі пунктиру додаються через CSS)
-            key.innerHTML = ''; 
+            key.innerHTML = `<img src="${userGlyphs[letter]}" alt="${letter}">`;
         }
         
-        // Маленька мітка літери в кутку для орієнтиру
         key.innerHTML += `<span class="key-label">${letter}</span>`;
         
-        // Клік по клітинці
         key.onclick = () => {
             if (isDesignMode) {
-                // Якщо режим проектування — відкриваємо полотно малювання
                 currentLetterToEdit = letter;
                 document.getElementById('target-letter').innerText = letter;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                document.getElementById('drawing-popup').classList.add('active');
+                const popup = document.getElementById('drawing-popup');
+                popup.classList.add('active');
+                popup.setAttribute('aria-hidden', 'false');
             } else {
-                // Якщо звичайний режим — вводимо символ
                 currentInputLetters.push(letter);
                 renderPreview();
             }
@@ -102,17 +100,21 @@ function renderKeyboard() {
 
 function renderPreview() {
     const preview = document.getElementById('input-preview');
+    if (!preview) return;
     preview.innerHTML = '';
+    
     currentInputLetters.forEach(letter => {
-        if (userGlyphs[letter]) {
+        if (letter === " ") {
+            preview.innerHTML += '<span style="width:12px; display:inline-block;"></span>';
+        } else if (userGlyphs[letter]) {
             preview.innerHTML += `<img src="${userGlyphs[letter]}" class="glyph-img">`;
         } else {
-            preview.innerHTML += `<span style="font-size:12px; color:#444; margin:0 2px;">[${letter}]</span>`;
+            preview.innerHTML += `<span style="font-size:11px; color:#555; margin:0 2px;">[${letter}]</span>`;
         }
     });
 }
 
-// Тумблер DESIGN ON / DESIGN OFF
+// Перемикач DESIGN MODE
 document.getElementById('btn-design-toggle').onclick = () => {
     isDesignMode = !isDesignMode;
     const btn = document.getElementById('btn-design-toggle');
@@ -122,15 +124,15 @@ document.getElementById('btn-design-toggle').onclick = () => {
     if (isDesignMode) {
         btn.classList.add('active');
         statusText.innerText = 'ON';
-        container.classList.add('design-mode-on');
+        if (container) container.classList.add('design-mode-on');
     } else {
         btn.classList.remove('active');
         statusText.innerText = 'OFF';
-        container.classList.remove('design-mode-on');
+        if (container) container.classList.remove('design-mode-on');
     }
 };
 
-// Дії з введенням
+// Пробіл та Backspace
 document.getElementById('btn-space').onclick = () => {
     currentInputLetters.push(" ");
     renderPreview();
@@ -141,7 +143,7 @@ document.getElementById('btn-backspace').onclick = () => {
     renderPreview();
 };
 
-// Надсилання повідомлення
+// Надсилання пакету в чат
 document.getElementById('btn-send').onclick = async () => {
     if (currentInputLetters.length === 0) return;
     
@@ -150,9 +152,13 @@ document.getElementById('btn-send').onclick = async () => {
     
     let msgHTML = '<div class="glyph-container">';
     currentInputLetters.forEach(letter => {
-        if (letter === " ") msgHTML += '<div style="width:10px;"></div>';
-        else if (userGlyphs[letter]) msgHTML += `<img src="${userGlyphs[letter]}" class="glyph-img">`;
-        else msgHTML += `<span style="color:gray;">?</span>`;
+        if (letter === " ") {
+            msgHTML += '<div style="width:12px;"></div>';
+        } else if (userGlyphs[letter]) {
+            msgHTML += `<img src="${userGlyphs[letter]}" class="glyph-img">`;
+        } else {
+            msgHTML += `<span style="color:#444; font-size:11px;">[${letter}]</span>`;
+        }
     });
     msgHTML += '</div>';
     
@@ -162,13 +168,17 @@ document.getElementById('btn-send').onclick = async () => {
     chatScreen.appendChild(msgEl);
     
     if (supabase) {
-        await supabase.from('messages').insert([{ payload: rawText, glyphs_pack: userGlyphs }]);
+        try {
+            await supabase.from('messages').insert([{ payload: rawText, glyphs_pack: userGlyphs }]);
+        } catch (e) {
+            console.error("Помилка бази даних:", e);
+        }
     } else {
-        // Ехо-відповідь для локальних тестів
+        // Симуляція ехо-відповіді для автономного тестування
         setTimeout(() => {
             const replyEl = document.createElement('div');
             replyEl.className = 'message incoming';
-            replyEl.innerHTML = `<small style="display:block;color:#555;font-size:9px;margin-bottom:4px;">Вхідне повідомлення:</small>${msgHTML}`;
+            replyEl.innerHTML = `<small style="display:block; color:#555; font-size:9px; margin-bottom:4px;">ВХІДНИЙ ПАКЕТ:</small>${msgHTML}`;
             chatScreen.appendChild(replyEl);
             chatScreen.scrollTop = chatScreen.scrollHeight;
         }, 1000);
@@ -179,7 +189,7 @@ document.getElementById('btn-send').onclick = async () => {
     chatScreen.scrollTop = chatScreen.scrollHeight;
 };
 
-// Зчитування онлайн повідомлень
+// Слухач Supabase
 if (supabase) {
     supabase
         .channel('schema-db-changes')
@@ -190,9 +200,9 @@ if (supabase) {
             
             let incomingHTML = '<div class="glyph-container">';
             newMsg.payload.split("").forEach(letter => {
-                if (letter === " ") incomingHTML += '<div style="width:10px;"></div>';
+                if (letter === " ") incomingHTML += '<div style="width:12px;"></div>';
                 else if (foreignGlyphs[letter]) incomingHTML += `<img src="${foreignGlyphs[letter]}" class="glyph-img">`;
-                else incomingHTML += `<span>${letter}</span>`;
+                else incomingHTML += `<span style="color:#555;">[${letter}]</span>`;
             });
             incomingHTML += '</div>';
             
@@ -205,5 +215,5 @@ if (supabase) {
         .subscribe();
 }
 
-// Запуск порожньої клавіатури
+// Старт
 renderKeyboard();
