@@ -27,7 +27,7 @@
         }
 
         /* СВІТЛА ТЕМА */
-        [data-theme="light"] {
+        .app-container[data-theme="light"] {
             --bg-main: #f0f0f3;
             --bg-panel: #ffffff;
             --bg-key: #f7f7f9;
@@ -40,19 +40,68 @@
 
         body {
             background-color: #000000;
-            color: var(--text-primary);
+            color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            transition: background-color 0.2s ease;
-        }
-        
-        [data-theme="light"] body {
-            background-color: #e2e2e9;
         }
 
+        /* ВІКНО РЕЄСТРАЦІЇ / СИНХРОНІЗАЦІЇ */
+        .auth-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #070708;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+        .auth-overlay.hidden { display: none; }
+        
+        .auth-card {
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .auth-card h2 {
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+        .auth-input {
+            width: 100%;
+            padding: 14px;
+            background: #111113;
+            border: 1px solid #1f1f24;
+            border-radius: 10px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 13px;
+            outline: none;
+        }
+        .auth-input::placeholder { color: #4e4e56; }
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-family: monospace;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        /* ГОЛОВНИЙ КОНТЕНТ */
         .app-container {
             width: 100%;
             max-width: 420px;
@@ -61,14 +110,14 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            transition: background-color 0.2s ease;
+            color: var(--text-primary);
         }
 
         @media (min-width: 421px) {
             .app-container {
                 height: 850px;
                 border-radius: 24px;
-                border: 1px solid var(--border-color);
+                border: 1px solid #1f1f24;
                 overflow: hidden;
             }
         }
@@ -81,379 +130,124 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .brand-identity {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .brand-identity { display: flex; align-items: center; gap: 10px; }
         .shield-wrapper {
             background: var(--text-primary);
             color: var(--bg-main);
-            padding: 5px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 5px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
         }
+        .shield-icon { width: 18px; height: 18px; }
+        .brand-titles { display: flex; flex-direction: column; }
+        .main-title { font-size: 13px; font-weight: 900; letter-spacing: 3px; line-height: 1; }
+        .sub-title { font-size: 10px; letter-spacing: 1.5px; opacity: 0.6; }
 
-        .shield-icon {
-            width: 18px;
-            height: 18px;
-        }
-
-        .brand-titles {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .main-title {
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            line-height: 1;
-        }
-
-        .sub-title {
-            font-size: 10px;
-            letter-spacing: 1.5px;
-            opacity: 0.6;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .header-controls { display: flex; align-items: center; gap: 10px; }
+        
         .theme-toggle-btn {
-            background: var(--bg-key);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            width: 38px;
-            height: 38px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
+            background: var(--bg-key); border: 1px solid var(--border-color);
+            border-radius: 10px; width: 38px; height: 38px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
             color: var(--text-primary);
         }
 
         .design-toggle-node {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 8px 14px;
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            height: 38px;
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 8px 14px; color: var(--text-primary);
+            cursor: pointer; display: flex; align-items: center; gap: 10px; height: 38px;
         }
-
-        .design-toggle-node.active {
-            border-color: var(--text-primary);
-            background: var(--bg-key);
-        }
-
-        .toggle-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .status-text {
-            font-size: 11px;
-            font-family: monospace;
-            color: var(--text-muted);
-        }
-
-        .design-toggle-node.active .status-text {
-            color: #00ff66;
-            font-weight: bold;
-        }
+        .design-toggle-node.active { border-color: var(--text-primary); background: var(--bg-key); }
+        .toggle-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+        .status-text { font-size: 11px; font-family: monospace; color: var(--text-muted); }
+        .design-toggle-node.active .status-text { color: #00ff66; font-weight: bold; }
 
         .system-meta-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 20px;
-            background: var(--bg-panel);
-            font-size: 9px;
-            font-family: monospace;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; padding: 8px 20px;
+            background: var(--bg-panel); font-size: 9px; font-family: monospace;
+            color: var(--text-muted); border-bottom: 1px solid var(--border-color);
         }
 
         .crypto-hash-banner {
-            padding: 6px 20px;
-            font-size: 8px;
-            font-family: monospace;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border-color);
+            padding: 6px 20px; font-size: 8px; font-family: monospace;
+            color: var(--text-muted); border-bottom: 1px solid var(--border-color);
         }
 
         .chat-viewport {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            flex: 1; padding: 20px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px;
         }
 
-        .message {
-            max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 14px;
-        }
+        .message { max-width: 80%; padding: 10px 14px; border-radius: 14px; }
+        .message.outgoing { background: var(--bg-key); border: 1px solid var(--border-color); align-self: flex-end; }
+        .message.incoming { background: var(--bg-panel); border: 1px solid var(--border-color); align-self: flex-start; }
+        .message.system { background: transparent; color: var(--text-muted); font-size: 11px; align-self: center; text-align: center; line-height: 1.4; }
+        
+        .msg-meta { font-size: 9px; font-family: monospace; color: var(--text-muted); margin-bottom: 4px; display: block; }
 
-        .message.outgoing {
-            background: var(--bg-key);
-            border: 1px solid var(--border-color);
-            align-self: flex-end;
-        }
-
-        .message.incoming {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            align-self: flex-start;
-        }
-
-        .message.system {
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 11px;
-            align-self: center;
-            text-align: center;
-            line-height: 1.4;
-        }
-
-        .glyph-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .glyph-img {
-            height: 22px;
-            filter: var(--invert-glyphs);
-        }
+        .glyph-container { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+        .glyph-img { height: 22px; filter: var(--invert-glyphs); }
 
         .preview-container {
-            display: flex;
-            align-items: center;
-            padding: 10px 20px;
-            border-top: 1px solid var(--border-color);
-            gap: 10px;
-            background: var(--bg-main);
+            display: flex; align-items: center; padding: 10px 20px;
+            border-top: 1px solid var(--border-color); gap: 10px; background: var(--bg-main);
         }
+        .input-preview-field { flex: 1; min-height: 40px; display: flex; align-items: center; gap: 4px; overflow-x: auto; }
+        .input-preview-field:empty:before { content: attr(data-placeholder); color: var(--text-muted); font-size: 12px; }
 
-        .input-preview-field {
-            flex: 1;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            overflow-x: auto;
-        }
-
-        .input-preview-field:empty:before {
-            content: attr(data-placeholder);
-            color: var(--text-muted);
-            font-size: 12px;
-        }
-
-        .backspace-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-
+        .backspace-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; }
         .backspace-btn svg { width: 18px; height: 18px; }
 
-        .matrix-keyboard-wrapper {
-            background-color: var(--bg-panel);
-        }
-
-        .keyboard-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-            padding: 16px 20px;
-        }
-
+        .matrix-keyboard-wrapper { background-color: var(--bg-panel); }
+        .keyboard-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 16px 20px; }
+        
         .key {
-            background-color: transparent;
-            border: 1.5px dashed var(--border-color);
-            aspect-ratio: 1;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
+            background-color: transparent; border: 1.5px dashed var(--border-color);
+            aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; position: relative;
         }
+        .key.has-drawing { border-style: solid; border-color: var(--border-color); background-color: var(--bg-key); }
+        .key img { max-width: 80%; max-height: 80%; filter: var(--invert-glyphs); }
+        .key-label { position: absolute; bottom: 4px; right: 6px; font-size: 8px; font-family: monospace; color: var(--text-muted); opacity: 0.4; }
 
-        .key.has-drawing {
-            border-style: solid;
-            border-color: var(--border-color);
-            background-color: var(--bg-key);
-        }
+        .keyboard-meta-footer { display: flex; justify-content: space-between; padding: 0 20px 8px 20px; background: var(--bg-panel); font-size: 8px; font-family: monospace; color: var(--text-muted); }
 
-        .key img {
-            max-width: 80%;
-            max-height: 80%;
-            filter: var(--invert-glyphs);
-        }
-
-        .key-label {
-            position: absolute;
-            bottom: 4px;
-            right: 6px;
-            font-size: 8px;
-            font-family: monospace;
-            color: var(--text-muted);
-            opacity: 0.4;
-        }
-
-        .keyboard-meta-footer {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px 8px 20px;
-            background: var(--bg-panel);
-            font-size: 8px;
-            font-family: monospace;
-            color: var(--text-muted);
-        }
-
-        .action-footer {
-            display: flex;
-            padding: 10px 20px 24px 20px;
-            background-color: var(--bg-panel);
-            gap: 15px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .space-node-btn {
-            flex: 1;
-            height: 50px;
-            background: var(--bg-key);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .space-bar-graphic {
-            width: 35px;
-            height: 2px;
-            background: var(--text-muted);
-        }
-
-        .send-node-btn {
-            width: 75px;
-            height: 50px;
-            background: var(--text-primary);
-            color: var(--bg-main);
-            border: none;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
+        .action-footer { display: flex; padding: 10px 20px 24px 20px; background-color: var(--bg-panel); gap: 15px; border-top: 1px solid var(--border-color); }
+        .space-node-btn { flex: 1; height: 50px; background: var(--bg-key); border: 1px solid var(--border-color); border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .space-bar-graphic { width: 35px; height: 2px; background: var(--text-muted); }
+        .send-node-btn { width: 75px; height: 50px; background: var(--text-primary); color: var(--bg-main); border: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .send-icon { width: 20px; height: 20px; }
 
         .drawing-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center; z-index: 100;
         }
-        
-        [data-theme="light"] .drawing-overlay {
-            background: rgba(255,255,255,0.85);
-        }
+        .app-container[data-theme="light"] .drawing-overlay { background: rgba(255,255,255,0.85); }
+        .drawing-overlay.active { display: flex; }
 
-        .drawing-overlay.active {
-            display: flex;
-        }
-
-        .popup-frame {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .popup-header h3 {
-            font-size: 11px;
-            letter-spacing: 1px;
-            font-family: monospace;
-            color: var(--text-muted);
-        }
-
+        .popup-frame { background: var(--bg-panel); border: 1px solid var(--border-color); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        .popup-header h3 { font-size: 11px; letter-spacing: 1px; font-family: monospace; color: var(--text-muted); }
         .highlight-letter { color: var(--text-primary); font-weight: bold; }
-
-        .canvas-container {
-            background: var(--canvas-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        #paint-canvas {
-            display: block;
-        }
-
-        .popup-footer {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .ctx-btn {
-            flex: 1;
-            padding: 11px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-key);
-            color: var(--text-primary);
-            font-family: monospace;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .ctx-btn.accent {
-            background: var(--text-primary);
-            color: var(--bg-main);
-            font-weight: bold;
-        }
+        .canvas-container { background: var(--canvas-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; }
+        #paint-canvas { display: block; }
+        .popup-footer { display: flex; gap: 10px; width: 100%; }
+        .ctx-btn { flex: 1; padding: 11px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-key); color: var(--text-primary); font-family: monospace; font-size: 11px; cursor: pointer; }
+        .ctx-btn.accent { background: var(--text-primary); color: var(--bg-main); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
+        
+        <div class="auth-overlay" id="auth-screen">
+            <div class="auth-card">
+                <h2>NODE CONNECT</h2>
+                <input type="text" class="auth-input" id="input-username" placeholder="Введіть свій нікнейм">
+                <input type="text" class="auth-input" id="input-room" placeholder="Ключ кімнати (напр: 777)">
+                <button class="auth-btn" id="btn-login">ПІДКЛЮЧИТИСЯ</button>
+            </div>
+        </div>
+
         <header class="app-header">
             <div class="brand-identity">
                 <div class="shield-wrapper">
@@ -469,7 +263,6 @@
             
             <div class="header-controls">
                 <button class="theme-toggle-btn" id="btn-theme-toggle" title="Змінити тему">☀️</button>
-                
                 <button class="design-toggle-node" id="btn-design-toggle">
                     <span class="toggle-label">DESIGN</span>
                     <div class="status-indicator-box">
@@ -480,14 +273,14 @@
         </header>
 
         <div class="system-meta-bar">
-            <div class="meta-item">SYS_STATUS: SECURE</div>
-            <div class="meta-item">NODE: 01//V2</div>
-            <div class="meta-item-matrix">MATRIX_26_CELLS</div>
+            <div class="meta-item">USER: <span id="meta-user" style="color:inherit; font-weight:bold;">?</span></div>
+            <div class="meta-item">ROOM: <span id="meta-room" style="color:inherit; font-weight:bold;">000</span></div>
+            <div class="meta-item-matrix">MATRIX_V2</div>
         </div>
 
         <div class="crypto-hash-banner">
-            <span class="hash-label">ENC_ALGO:</span>
-            <span class="hash-value">P2P_IMAGE_STREAM_DIRECT</span>
+            <span class="hash-label">SYNC_STATUS:</span>
+            <span class="hash-value" id="sync-status">OFFLINE (DEMO)</span>
         </div>
 
         <section class="drawing-overlay" id="drawing-popup">
@@ -508,7 +301,7 @@
         <main class="chat-viewport" id="chat-screen">
             <div class="message system">
                 <p class="sys-alert">[SYSTEM ALERT] КАНАЛ СИНХРОНІЗОВАНО</p>
-                <p class="sys-instruction">Увімкніть режим "DESIGN ON" зверху, щоб замалювати свої унікальні symbols.</p>
+                <p class="sys-instruction">Малюйте гліфи в режимі DESIGN. Ваші символи автоматично відправляться другові!</p>
             </div>
         </main>
 
