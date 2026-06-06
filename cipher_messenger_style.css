@@ -1,0 +1,492 @@
+/* Основна палітра кольорів та скидання стилів */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --bg-main: #070708;
+    --bg-panel: #111113;
+    --bg-key: #18181c;
+    --border-color: #222226;
+    --border-focus: #3a3a42;
+    --text-primary: #ffffff;
+    --text-muted: #55555e;
+    --accent-glow: rgba(255, 255, 255, 0.05);
+}
+
+body {
+    background-color: #000000;
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Контейнер мобільного додатку */
+.app-container {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    background-color: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+@media (min-width: 421px) {
+    .app-container {
+        height: 880px;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+}
+
+/* Верхня панель (Header) */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background-color: var(--bg-main);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 10;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.shield-logo {
+    background-color: var(--text-primary);
+    color: var(--bg-main);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    line-height: 1.1;
+}
+
+.brand-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--text-primary);
+    opacity: 0.9;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.design-badge {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.badge-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.badge-num {
+    font-size: 8px;
+    font-family: monospace;
+    color: var(--text-muted);
+    line-height: 1;
+    text-align: center;
+}
+
+.share-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.share-btn:hover {
+    background: var(--bg-key);
+}
+
+/* Панель налаштування / синхронізації ключів */
+.sync-panel {
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.sync-panel input {
+    flex: 1;
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: monospace;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.sync-panel input:focus {
+    border-color: var(--border-focus);
+}
+
+.sync-panel button {
+    background-color: var(--text-primary);
+    color: var(--bg-main);
+    border: none;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 0 16px;
+    cursor: pointer;
+}
+
+.sync-info {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+/* Екран Чіт-стрічки (Повідомлення) */
+.chat-screen {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--bg-main);
+}
+
+/* Стилі для кастомного скролбару */
+.chat-screen::-webkit-scrollbar {
+    width: 4px;
+}
+.chat-screen::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
+.message {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 15px;
+    line-height: 1.4;
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message.incoming {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+.message.outgoing {
+    background-color: #1c1c22;
+    border: 1px solid #2a2a32;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.message .glyph-text {
+    font-size: 20px;
+    letter-spacing: 3px;
+    word-break: break-all;
+}
+
+.message .debug-raw {
+    display: block;
+    font-family: monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 4px;
+}
+
+.message.system {
+    align-self: center;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-align: center;
+    max-width: 90%;
+    padding: 4px;
+}
+
+/* Зона попереднього перегляду перед відправкою */
+.input-preview-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    background-color: var(--bg-main);
+    border-top: 1px solid var(--border-color);
+    gap: 12px;
+}
+
+.input-preview {
+    flex: 1;
+    min-height: 32px;
+    font-size: 22px;
+    letter-spacing: 4px;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+    color: var(--text-primary);
+}
+
+.input-preview:empty:before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+    font-size: 14px;
+    letter-spacing: 0px;
+}
+
+.backspace-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.backspace-btn:hover {
+    color: var(--text-primary);
+}
+
+/* Матрична геометрія клавіатури */
+.keyboard-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 20px;
+    background-color: var(--bg-panel);
+    border-top: 1px solid var(--border-color);
+}
+
+.key {
+    background-color: var(--bg-key);
+    border: 1px solid var(--border-color);
+    aspect-ratio: 1;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s, border-color 0.1s;
+    position: relative;
+}
+
+/* Стиль пунктирних порожніх клавіш, як на фото */
+.key.empty {
+    border: 1.5px dashed #242429;
+    background-color: transparent;
+}
+
+.key svg {
+    width: 60%;
+    height: 60%;
+    stroke: var(--text-primary);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    opacity: 0.85;
+}
+
+.key:not(.empty):active {
+    background-color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
+.key:not(.empty):active svg {
+    stroke: var(--bg-main);
+    opacity: 1;
+}
+
+/* Нижня панель дій (Кнопка пробілу та надсилання) */
+.action-bar {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px 24px 20px;
+    background-color: var(--bg-panel);
+    gap: 16px;
+}
+
+.space-bar-wrapper {
+    flex: 1;
+}
+
+.space-bar {
+    width: 100%;
+    height: 52px;
+    background-color: var(--bg-key);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.space-bar:active {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.space-line {
+    width: 40px;
+    height: 2px;
+    background-color: var(--text-muted);
+    border-radius: 1px;
+}
+
+.send-btn {
+    width: 85px;
+    height: 52px;
+    background-color: #e4e4e7;
+    border: none;
+    border-radius: 14px;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.send-btn:active {
+    background-color: #ffffff;
+}
+
+/* Модальне вікно */
+.modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    padding: 24px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 320px;
+    animation: scaleUp 0.2s ease-out;
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-content h3 {
+    font-size: 16px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.modal-content p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.share-seed-value {
+    font-size: 28px;
+    font-family: monospace;
+    letter-spacing: 4px;
+    background: #000;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.close-modal-btn {
+    background: var(--text-primary);
+    color: var(--bg-main);
+    border: none;
+    padding: 10px 20px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+}
