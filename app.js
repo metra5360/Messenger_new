@@ -3,8 +3,13 @@ const SUPABASE_URL = "";
 const SUPABASE_KEY = ""; 
 
 let supabase = null;
-if (SUPABASE_URL && SUPABASE_KEY) {
-    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Ретельно перевіряємо, чи вписані ключі, перед тим як викликати бібліотеку
+if (SUPABASE_URL !== "" && SUPABASE_KEY !== "") {
+    try {
+        supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch(e) {
+        console.error("Supabase ініціалізовано з помилкою, переходимо в офлайн", e);
+    }
 }
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
