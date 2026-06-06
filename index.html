@@ -12,8 +12,10 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
+        /* ТЕМНА ТЕМА (За замовчуванням) */
         :root {
             --bg-main: #070708;
             --bg-panel: #111113;
@@ -21,6 +23,20 @@
             --border-color: #1f1f24;
             --text-primary: #ffffff;
             --text-muted: #4e4e56;
+            --canvas-bg: #000000;
+            --invert-glyphs: invert(1); /* Інверсія для малюнків, щоб біле ставало чорним */
+        }
+
+        /* СВІТЛА ТЕМА */
+        [data-theme="light"] {
+            --bg-main: #f0f0f3;
+            --bg-panel: #ffffff;
+            --bg-key: #f7f7f9;
+            --border-color: #e2e2e9;
+            --text-primary: #111113;
+            --text-muted: #8a8a93;
+            --canvas-bg: #ffffff;
+            --invert-glyphs: invert(0); /* Вимикаємо інверсію, малюнки малюються чорним */
         }
 
         body {
@@ -31,6 +47,10 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+        }
+        
+        [data-theme="light"] body {
+            background-color: #e2e2e9;
         }
 
         .app-container {
@@ -67,8 +87,8 @@
         }
 
         .shield-wrapper {
-            background: #fff;
-            color: #000;
+            background: var(--text-primary);
+            color: var(--bg-main);
             padding: 5px;
             border-radius: 6px;
             display: flex;
@@ -99,33 +119,48 @@
             opacity: 0.6;
         }
 
-        .design-toggle-node {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 8px 14px;
-            color: #fff;
-            cursor: pointer;
+        .header-controls {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
+        /* Кнопка зміни теми */
+        .theme-toggle-btn {
+            background: var(--bg-key);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .design-toggle-node {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 38px;
+        }
+
         .design-toggle-node.active {
-            border-color: #fff;
-            background: #1c1c24;
+            border-color: var(--text-primary);
+            background: var(--bg-key);
         }
 
         .toggle-label {
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 1px;
-        }
-
-        .status-indicator-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .status-text {
@@ -143,21 +178,19 @@
             display: flex;
             justify-content: space-between;
             padding: 8px 20px;
-            background: #0b0b0d;
+            background: var(--bg-panel);
+            opacity: 0.8;
             font-size: 9px;
             font-family: monospace;
-            color: #777;
+            color: var(--text-muted);
             border-bottom: 1px solid var(--border-color);
         }
-
-        .neon-dim { color: #444; }
-        .neon-active { color: #fff; }
 
         .crypto-hash-banner {
             padding: 6px 20px;
             font-size: 8px;
             font-family: monospace;
-            color: #444;
+            color: var(--text-muted);
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -177,8 +210,8 @@
         }
 
         .message.outgoing {
-            background: #1c1c22;
-            align-self: flex-end;
+            background: var(--bg-key);
+            border: 1px solid var(--border-color);
         }
 
         .message.incoming {
@@ -196,8 +229,6 @@
             line-height: 1.4;
         }
 
-        .sys-alert { color: #666; font-family: monospace; font-weight: bold; margin-bottom: 2px;}
-
         .glyph-container {
             display: flex;
             flex-wrap: wrap;
@@ -207,7 +238,7 @@
 
         .glyph-img {
             height: 22px;
-            filter: invert(1);
+            filter: var(--invert-glyphs);
         }
 
         .preview-container {
@@ -216,7 +247,7 @@
             padding: 10px 20px;
             border-top: 1px solid var(--border-color);
             gap: 10px;
-            background: #09090b;
+            background: var(--bg-main);
         }
 
         .input-preview-field {
@@ -270,14 +301,14 @@
 
         .key.has-drawing {
             border-style: solid;
-            border-color: #2a2a32;
+            border-color: var(--border-color);
             background-color: var(--bg-key);
         }
 
         .key img {
             max-width: 80%;
             max-height: 80%;
-            filter: invert(1);
+            filter: var(--invert-glyphs);
         }
 
         .key-label {
@@ -286,7 +317,8 @@
             right: 6px;
             font-size: 8px;
             font-family: monospace;
-            color: rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+            opacity: 0.4;
         }
 
         .keyboard-meta-footer {
@@ -296,7 +328,7 @@
             background: var(--bg-panel);
             font-size: 8px;
             font-family: monospace;
-            color: #333;
+            color: var(--text-muted);
         }
 
         .action-footer {
@@ -304,7 +336,7 @@
             padding: 10px 20px 24px 20px;
             background-color: var(--bg-panel);
             gap: 15px;
-            border-top: 1px solid #16161a;
+            border-top: 1px solid var(--border-color);
         }
 
         .space-node-btn {
@@ -328,8 +360,8 @@
         .send-node-btn {
             width: 75px;
             height: 50px;
-            background: #fff;
-            color: #000;
+            background: var(--text-primary);
+            color: var(--bg-main);
             border: none;
             border-radius: 12px;
             display: flex;
@@ -340,23 +372,26 @@
 
         .send-icon { width: 20px; height: 20px; }
 
-        /* Критично важливе виправлення тут: overlay сховано за замовчуванням */
         .drawing-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px);
-            display: none; /* Завжди сховано, поки не додамо клас .active */
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 100;
         }
+        
+        [data-theme="light"] .drawing-overlay {
+            background: rgba(255,255,255,0.85);
+        }
 
         .drawing-overlay.active {
-            display: flex; /* Показується тільки при активному кліку */
+            display: flex;
         }
 
         .popup-frame {
@@ -374,14 +409,14 @@
             font-size: 11px;
             letter-spacing: 1px;
             font-family: monospace;
-            color: #777;
+            color: var(--text-muted);
         }
 
-        .highlight-letter { color: #fff; font-weight: bold; }
+        .highlight-letter { color: var(--text-primary); font-weight: bold; }
 
         .canvas-container {
-            background: #000;
-            border: 1px solid #222;
+            background: var(--canvas-bg);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             overflow: hidden;
         }
@@ -402,15 +437,15 @@
             border-radius: 8px;
             border: 1px solid var(--border-color);
             background: var(--bg-key);
-            color: #fff;
+            color: var(--text-primary);
             font-family: monospace;
             font-size: 11px;
             cursor: pointer;
         }
 
         .ctx-btn.accent {
-            background: #fff;
-            color: #000;
+            background: var(--text-primary);
+            color: var(--bg-main);
             font-weight: bold;
         }
     </style>
@@ -432,6 +467,8 @@
             </div>
             
             <div class="header-controls">
+                <button class="theme-toggle-btn" id="btn-theme-toggle" title="Змінити тему">☀️</button>
+                
                 <button class="design-toggle-node" id="btn-design-toggle">
                     <span class="toggle-label">DESIGN</span>
                     <div class="status-indicator-box">
@@ -442,8 +479,8 @@
         </header>
 
         <div class="system-meta-bar">
-            <div class="meta-item"><span class="neon-dim">SYS_STATUS:</span> <span class="neon-active">SECURE</span></div>
-            <div class="meta-item"><span class="neon-dim">NODE:</span> <span>01//V2</span></div>
+            <div class="meta-item">SYS_STATUS: SECURE</div>
+            <div class="meta-item">NODE: 01//V2</div>
             <div class="meta-item-matrix">MATRIX_26_CELLS</div>
         </div>
 
