@@ -3,13 +3,18 @@ let userGlyphs = {};
 let isDesignMode = false;
 let currentLetterToEdit = null;
 let currentInputLetters = [];
+let currentTheme = "dark"; // Початкова тема
 
 // Ініціалізація Canvas
 const canvas = document.getElementById('paint-canvas');
 const ctx = canvas.getContext('2d');
 let isDrawing = false;
 
-ctx.strokeStyle = '#ffffff'; 
+// Функція оновлення кольору лінії в залежності від теми
+function updateCanvasBrushColor() {
+    ctx.strokeStyle = currentTheme === "dark" ? '#ffffff' : '#000000';
+}
+updateCanvasBrushColor();
 ctx.lineWidth = 5;
 ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
@@ -44,7 +49,7 @@ document.getElementById('btn-clear-canvas').onclick = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
-// Кнопка Зберегти малюнок у клітинку
+// Збереження малюнку
 document.getElementById('btn-save-canvas').onclick = () => {
     const imageData = canvas.toDataURL('image/png');
     userGlyphs[currentLetterToEdit] = imageData;
@@ -52,7 +57,7 @@ document.getElementById('btn-save-canvas').onclick = () => {
     renderKeyboard();
 };
 
-// Генерація 26 клітинок
+// Генерація клітинок
 function renderKeyboard() {
     const grid = document.getElementById('keyboard-grid');
     if (!grid) return;
@@ -74,6 +79,7 @@ function renderKeyboard() {
                 currentLetterToEdit = letter;
                 document.getElementById('target-letter').innerText = letter;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                updateCanvasBrushColor(); // Оновлюємо колір перед відкриттям
                 document.getElementById('drawing-popup').classList.add('active');
             } else {
                 currentInputLetters.push(letter);
@@ -96,12 +102,29 @@ function renderPreview() {
         } else if (userGlyphs[letter]) {
             preview.innerHTML += `<img src="${userGlyphs[letter]}" class="glyph-img">`;
         } else {
-            preview.innerHTML += `<span style="font-size:11px; color:#555; margin:0 2px;">[${letter}]</span>`;
+            preview.innerHTML += `<span style="font-size:11px; opacity:0.5; margin:0 2px;">[${letter}]</span>`;
         }
     });
 }
 
-// Перемикач режиму DESIGN
+// Кнопка зміни ТЕМИ (Світла / Темна)
+document.getElementById('btn-theme-toggle').onclick = () => {
+    const htmlEl = document.documentElement;
+    const themeBtn = document.getElementById('btn-theme-toggle');
+    
+    if (currentTheme === "dark") {
+        currentTheme = "light";
+        htmlEl.setAttribute('data-theme', 'light');
+        themeBtn.innerText = "🌙"; // Показуємо місяць, якщо зараз світло
+    } else {
+        currentTheme = "dark";
+        htmlEl.removeAttribute('data-theme');
+        themeBtn.innerText = "☀️"; // Показуємо сонце, якщо зараз темно
+    }
+    updateCanvasBrushColor();
+};
+
+// Перемикач DESIGN MODE
 document.getElementById('btn-design-toggle').onclick = () => {
     isDesignMode = !isDesignMode;
     const btn = document.getElementById('btn-design-toggle');
@@ -116,7 +139,7 @@ document.getElementById('btn-design-toggle').onclick = () => {
     }
 };
 
-// Кнопки управління
+// Пробіл та Backspace
 document.getElementById('btn-space').onclick = () => {
     currentInputLetters.push(" ");
     renderPreview();
@@ -127,17 +150,16 @@ document.getElementById('btn-backspace').onclick = () => {
     renderPreview();
 };
 
-// Надіслати пакет
+// Надіслати повідомлення
 document.getElementById('btn-send').onclick = () => {
     if (currentInputLetters.length === 0) return;
     
     const chatScreen = document.getElementById('chat-screen');
-    
     let msgHTML = '<div class="glyph-container">';
     currentInputLetters.forEach(letter => {
         if (letter === " ") msgHTML += '<div style="width:12px;"></div>';
         else if (userGlyphs[letter]) msgHTML += `<img src="${userGlyphs[letter]}" class="glyph-img">`;
-        else msgHTML += `<span style="color:#444; font-size:11px;">[${letter}]</span>`;
+        else msgHTML += `<span style="font-size:11px; opacity:0.5;">[${letter}]</span>`;
     });
     msgHTML += '</div>';
     
@@ -151,5 +173,5 @@ document.getElementById('btn-send').onclick = () => {
     chatScreen.scrollTop = chatScreen.scrollHeight;
 };
 
-// Запуск при старті
+// Запуск клавіатури
 renderKeyboard();
