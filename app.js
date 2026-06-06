@@ -1,14 +1,25 @@
 // === НАЛАШТУВАННЯ SUPABASE ===
+// Встав сюди свої дані з налаштувань проекту Supabase (Project Settings -> API)
 const SUPABASE_URL = "ТВІЙ_SUPABASE_URL"; 
 const SUPABASE_KEY = "ТВІЙ_SUPABASE_KEY"; 
 
 let supabase = null;
+
+// ПЕРЕВІРКА: Якщо ключі змінено — вмикаємо онлайн-синхронізацію
 if (SUPABASE_URL !== "ТВІЙ_SUPABASE_URL" && SUPABASE_KEY !== "ТВІЙ_SUPABASE_KEY") {
-    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    try {
+        // ВИПРАВЛЕНО: Використовуємо глобальний об'єкт window.supabase
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase успішно підключено!");
+    } catch (e) {
+        console.error("Критична помилка ініціалізації Supabase:", e);
+    }
+} else {
+    console.log("Додаток запущено в ОФЛАЙН режимі (Демо)");
 }
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-let userGlyphs = {}; // Сюди зберігаються і свої, і гліфи друга
+let userGlyphs = {}; 
 let isDesignMode = false;
 let currentLetterToEdit = null;
 let currentInputLetters = [];
@@ -35,9 +46,11 @@ document.getElementById('btn-login').onclick = () => {
     document.getElementById('auth-screen').classList.add('hidden');
     
     if (supabase) {
-        document.getElementById('sync-status').innerText = "ONLINE // ROOM SINC";
-        loadExistingGlyphs(); // Завантажуємо вже намальовані символи з цієї кімнати
-        listenToIncomingData(); // Вмикаємо стрім синхронізації з другом
+        document.getElementById('sync-status').innerText = "ONLINE // ROOM SYNC";
+        loadExistingGlyphs(); 
+        listenToIncomingData(); 
+    } else {
+        document.getElementById('sync-status').innerText = "OFFLINE // LOCAL DEMO";
     }
 };
 
@@ -78,7 +91,7 @@ function stopDrawing() { isDrawing = false; }
 
 document.getElementById('btn-clear-canvas').onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-// Збереження власного гліфа та відправка другові
+// Збереження гліфа
 document.getElementById('btn-save-canvas').onclick = async () => {
     const imageData = canvas.toDataURL('image/png');
     userGlyphs[currentLetterToEdit] = imageData;
@@ -87,19 +100,18 @@ document.getElementById('btn-save-canvas').onclick = async () => {
     renderKeyboard();
     renderPreview();
 
-    // Синхронізуємо намальований гліф через базу даних Supabase
     if (supabase) {
         try {
             await supabase.from('glyphs').insert([
                 { room_id: roomID, user_name: username, letter: currentLetterToEdit, image_base64: imageData }
             ]);
         } catch (err) {
-            console.error("Помилка синхронізації гліфа:", err);
+            console.error("Помилка відправки гліфа в базу:", err);
         }
     }
 };
 
-// Завантаження збережених гліфів з кімнати (при старті)
+// Завантаження гліфів з бази
 async function loadExistingGlyphs() {
     const { data, error } = await supabase
         .from('glyphs')
@@ -114,14 +126,14 @@ async function loadExistingGlyphs() {
     }
 }
 
-// Функція прослуховування дій друга в реальному часі
+// Прослуховування бази в реальному часі
 function listenToIncomingData() {
-    // 1. Слухаємо нові символи друга
+    // Стрім нових гліфів
     supabase
         .channel('glyphs-room-stream')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'glyphs', filter: `room_id=eq.${roomID}` }, (payload) => {
             const incoming = payload.new;
-            if (incoming.user_name !== username) { // Якщо намалював друг, а не я
+            if (incoming.user_name !== username) { 
                 userGlyphs[incoming.letter] = incoming.image_base64;
                 renderKeyboard();
                 renderPreview();
@@ -129,7 +141,7 @@ function listenToIncomingData() {
         })
         .subscribe();
 
-    // 2. Слухаємо текстові повідомлення в кімнаті
+    // Стрім повідомлень
     supabase
         .channel('messages-room-stream')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomID}` }, (payload) => {
@@ -141,7 +153,7 @@ function listenToIncomingData() {
         .subscribe();
 }
 
-// Генерація кнопок-літер
+// Генерація кнопок
 function renderKeyboard() {
     const grid = document.getElementById('keyboard-grid');
     if (!grid) return;
@@ -189,7 +201,7 @@ function renderPreview() {
     });
 }
 
-// Кнопка зміни ТЕМИ
+// Зміна теми
 document.getElementById('btn-theme-toggle').onclick = () => {
     const container = document.querySelector('.app-container');
     const themeBtn = document.getElementById('btn-theme-toggle');
@@ -226,7 +238,7 @@ document.getElementById('btn-design-toggle').onclick = () => {
 document.getElementById('btn-space').onclick = () => { currentInputLetters.push(" "); renderPreview(); };
 document.getElementById('btn-backspace').onclick = () => { currentInputLetters.pop(); renderPreview(); };
 
-// Відправка шифровки другові
+// Відправка
 document.getElementById('btn-send').onclick = async () => {
     if (currentInputLetters.length === 0) return;
     
@@ -239,7 +251,7 @@ document.getElementById('btn-send').onclick = async () => {
                 { room_id: roomID, user_name: username, payload_text: rawText }
             ]);
         } catch (e) {
-            console.error("Не вдалося передати повідомлення:", e);
+            console.error("Помилка надсилання тексту:", e);
         }
     }
     
