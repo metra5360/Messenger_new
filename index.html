@@ -2,58 +2,118 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cipher Architect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cipher Architect — Secure Node V2</title>
     <link rel="stylesheet" href="style.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
     <div class="app-container">
-        <header>
-            <div class="brand-zone">
-                <div class="shield-icon">🛡️</div>
-                <div class="brand-text">
-                    <div class="main-title">CIPHER</div>
-                    <div class="sub-title">ARCHITECT</div>
+        
+        <header class="app-header">
+            <div class="brand-identity">
+                <div class="shield-wrapper">
+                    <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="brand-titles">
+                    <h1 class="main-title">CIPHER</h1>
+                    <span class="sub-title">ARCHITECT</span>
                 </div>
             </div>
             
-            <button class="design-toggle" id="btn-design-toggle">
-                <span class="toggle-text">DESIGN</span>
-                <span class="toggle-status" id="status-text">OFF</span>
-            </button>
+            <div class="header-controls">
+                <button class="design-toggle-node" id="btn-design-toggle" aria-label="Переключити режим дизайну">
+                    <span class="toggle-label">DESIGN</span>
+                    <div class="status-indicator-box">
+                        <span class="status-text" id="status-text">OFF</span>
+                        <span class="status-pulse-dot"></span>
+                    </div>
+                </button>
+            </div>
         </header>
 
-        <div class="drawing-popup" id="drawing-popup">
-            <div class="popup-content">
-                <h3>Малюємо символ для літери: <span id="target-letter">A</span></h3>
-                <canvas id="paint-canvas" width="200" height="200"></canvas>
-                <div class="popup-actions">
-                    <button id="btn-clear-canvas">Очистити</button>
-                    <button id="btn-save-canvas" class="accent">Зберегти</button>
-                </div>
-            </div>
+        <div class="system-meta-bar">
+            <div class="meta-item"><span class="neon-dim">SYS_STATUS:</span> <span class="neon-active">SECURE</span></div>
+            <div class="meta-item"><span class="neon-dim">NODE:</span> <span>01//V2</span></div>
+            <div class="meta-item-matrix">MATRIX_26_CELLS</div>
         </div>
 
-        <main class="chat-screen" id="chat-screen">
-            <div class="message system">Канал активовано. Увімкніть DESIGN ON, щоб намалювати свій унікальний алфавіт.</div>
+        <div class="crypto-hash-banner">
+            <span class="hash-label">ENC_ALGO:</span>
+            <span class="hash-value">P2P_IMAGE_STREAM_DIRECT</span>
+        </div>
+
+        <section class="drawing-overlay" id="drawing-popup" aria-hidden="true">
+            <div class="popup-frame">
+                <header class="popup-header">
+                    <h3>DRAWING GLYPH FOR: <span id="target-letter" class="highlight-letter">A</span></h3>
+                </header>
+                
+                <div class="canvas-container">
+                    <canvas id="paint-canvas" width="240" height="240"></canvas>
+                    <div class="canvas-grid-lines"></div>
+                </div>
+                
+                <footer class="popup-footer">
+                    <button class="ctx-btn btn-clear-art" id="btn-clear-canvas">RESET</button>
+                    <button class="ctx-btn btn-save-art accent" id="btn-save-canvas">APPLY GLYPH</button>
+                </footer>
+            </div>
+        </section>
+
+        <main class="chat-viewport" id="chat-screen">
+            <div class="message system">
+                <p class="sys-alert">[SYSTEM ALERT] КАНАЛ СИНХРОНІЗОВАНО</p>
+                <p class="sys-instruction">Увімкніть режим "DESIGN ON" зверху, щоб замалювати свої унікальні символи у клітинках нижче.</p>
+            </div>
         </main>
 
-        <div class="input-preview-row">
-            <div class="input-preview" id="input-preview" data-placeholder="Натискайте клітинки для введення..."></div>
-            <button class="backspace-btn" id="btn-backspace">⌫</button>
-        </div>
-
-        <div class="keyboard-grid" id="keyboard-grid"></div>
-
-        <div class="action-bar">
-            <button class="space-bar" id="btn-space">
-                <div class="space-line"></div>
+        <section class="preview-container">
+            <div class="input-preview-field" id="input-preview" data-placeholder="Очікування вводу з матриці...">
+                </div>
+            <button class="control-node-btn backspace-btn" id="btn-backspace" title="Видалити останній символ">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+                    <line x1="18" y1="9" x2="12" y2="15"/>
+                    <line x1="12" y1="9" x2="18" y2="15"/>
+                </svg>
             </button>
-            <button class="send-btn" id="btn-send">🚀</button>
+        </section>
+
+        <div class="matrix-divider">
+            <div class="line-glow"></div>
         </div>
+
+        <section class="matrix-keyboard-wrapper" aria-label="Криптографічна матриця">
+            <div class="keyboard-grid" id="keyboard-grid">
+                </div>
+        </section>
+
+        <div class="keyboard-meta-footer">
+            <span class="layer-indicator">LAYER_01 [A-Z]</span>
+            <span class="grid-spec">6X5_GRID_NODE</span>
+        </div>
+
+        <footer class="action-footer">
+            <button class="footer-btn space-node-btn" id="btn-space" title="Вставити пробіл">
+                <div class="space-bar-graphic"></div>
+            </button>
+            
+            <button class="footer-btn send-node-btn" id="btn-send" title="Передати зашифрований пакет">
+                <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+            </button>
+        </footer>
+
     </div>
 
     <script src="app.js"></script>
+
 </body>
 </html>
