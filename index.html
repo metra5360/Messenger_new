@@ -161,3 +161,390 @@
         .toggle-label {
             font-size: 11px;
             font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .status-text {
+            font-size: 11px;
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+
+        .design-toggle-node.active .status-text {
+            color: #00ff66;
+            font-weight: bold;
+        }
+
+        .system-meta-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 20px;
+            background: var(--bg-panel);
+            font-size: 9px;
+            font-family: monospace;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .crypto-hash-banner {
+            padding: 6px 20px;
+            font-size: 8px;
+            font-family: monospace;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-viewport {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 14px;
+        }
+
+        .message.outgoing {
+            background: var(--bg-key);
+            border: 1px solid var(--border-color);
+            align-self: flex-end;
+        }
+
+        .message.incoming {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            align-self: flex-start;
+        }
+
+        .message.system {
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 11px;
+            align-self: center;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .glyph-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .glyph-img {
+            height: 22px;
+            filter: var(--invert-glyphs);
+        }
+
+        .preview-container {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-top: 1px solid var(--border-color);
+            gap: 10px;
+            background: var(--bg-main);
+        }
+
+        .input-preview-field {
+            flex: 1;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            overflow-x: auto;
+        }
+
+        .input-preview-field:empty:before {
+            content: attr(data-placeholder);
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .backspace-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .backspace-btn svg { width: 18px; height: 18px; }
+
+        .matrix-keyboard-wrapper {
+            background-color: var(--bg-panel);
+        }
+
+        .keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            padding: 16px 20px;
+        }
+
+        .key {
+            background-color: transparent;
+            border: 1.5px dashed var(--border-color);
+            aspect-ratio: 1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .key.has-drawing {
+            border-style: solid;
+            border-color: var(--border-color);
+            background-color: var(--bg-key);
+        }
+
+        .key img {
+            max-width: 80%;
+            max-height: 80%;
+            filter: var(--invert-glyphs);
+        }
+
+        .key-label {
+            position: absolute;
+            bottom: 4px;
+            right: 6px;
+            font-size: 8px;
+            font-family: monospace;
+            color: var(--text-muted);
+            opacity: 0.4;
+        }
+
+        .keyboard-meta-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px 8px 20px;
+            background: var(--bg-panel);
+            font-size: 8px;
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+
+        .action-footer {
+            display: flex;
+            padding: 10px 20px 24px 20px;
+            background-color: var(--bg-panel);
+            gap: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .space-node-btn {
+            flex: 1;
+            height: 50px;
+            background: var(--bg-key);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .space-bar-graphic {
+            width: 35px;
+            height: 2px;
+            background: var(--text-muted);
+        }
+
+        .send-node-btn {
+            width: 75px;
+            height: 50px;
+            background: var(--text-primary);
+            color: var(--bg-main);
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .send-icon { width: 20px; height: 20px; }
+
+        .drawing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        [data-theme="light"] .drawing-overlay {
+            background: rgba(255,255,255,0.85);
+        }
+
+        .drawing-overlay.active {
+            display: flex;
+        }
+
+        .popup-frame {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .popup-header h3 {
+            font-size: 11px;
+            letter-spacing: 1px;
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+
+        .highlight-letter { color: var(--text-primary); font-weight: bold; }
+
+        .canvas-container {
+            background: var(--canvas-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #paint-canvas {
+            display: block;
+        }
+
+        .popup-footer {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .ctx-btn {
+            flex: 1;
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-key);
+            color: var(--text-primary);
+            font-family: monospace;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .ctx-btn.accent {
+            background: var(--text-primary);
+            color: var(--bg-main);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="app-header">
+            <div class="brand-identity">
+                <div class="shield-wrapper">
+                    <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="brand-titles">
+                    <h1 class="main-title">CIPHER</h1>
+                    <span class="sub-title">ARCHITECT</span>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <button class="theme-toggle-btn" id="btn-theme-toggle" title="Змінити тему">☀️</button>
+                
+                <button class="design-toggle-node" id="btn-design-toggle">
+                    <span class="toggle-label">DESIGN</span>
+                    <div class="status-indicator-box">
+                        <span class="status-text" id="status-text">OFF</span>
+                    </div>
+                </button>
+            </div>
+        </header>
+
+        <div class="system-meta-bar">
+            <div class="meta-item">SYS_STATUS: SECURE</div>
+            <div class="meta-item">NODE: 01//V2</div>
+            <div class="meta-item-matrix">MATRIX_26_CELLS</div>
+        </div>
+
+        <div class="crypto-hash-banner">
+            <span class="hash-label">ENC_ALGO:</span>
+            <span class="hash-value">P2P_IMAGE_STREAM_DIRECT</span>
+        </div>
+
+        <section class="drawing-overlay" id="drawing-popup">
+            <div class="popup-frame">
+                <header class="popup-header">
+                    <h3>DRAWING GLYPH FOR: <span id="target-letter" class="highlight-letter">A</span></h3>
+                </header>
+                <div class="canvas-container">
+                    <canvas id="paint-canvas" width="220" height="220"></canvas>
+                </div>
+                <footer class="popup-footer">
+                    <button class="ctx-btn" id="btn-clear-canvas">RESET</button>
+                    <button class="ctx-btn accent" id="btn-save-canvas">APPLY GLYPH</button>
+                </footer>
+            </div>
+        </section>
+
+        <main class="chat-viewport" id="chat-screen">
+            <div class="message system">
+                <p class="sys-alert">[SYSTEM ALERT] КАНАЛ СИНХРОНІЗОВАНО</p>
+                <p class="sys-instruction">Увімкніть режим "DESIGN ON" зверху, щоб замалювати свої унікальні symbols.</p>
+            </div>
+        </main>
+
+        <section class="preview-container">
+            <div class="input-preview-field" id="input-preview" data-placeholder="Очікування вводу з матриці..."></div>
+            <button class="backspace-btn" id="btn-backspace">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+                    <line x1="18" y1="9" x2="12" y2="15"/>
+                    <line x1="12" y1="9" x2="18" y2="15"/>
+                </svg>
+            </button>
+        </section>
+
+        <section class="matrix-keyboard-wrapper">
+            <div class="keyboard-grid" id="keyboard-grid"></div>
+        </section>
+
+        <div class="keyboard-meta-footer">
+            <span class="layer-indicator">LAYER_01 [A-Z]</span>
+            <span class="grid-spec">6X5_GRID_NODE</span>
+        </div>
+
+        <footer class="action-footer">
+            <button class="space-node-btn" id="btn-space">
+                <div class="space-bar-graphic"></div>
+            </button>
+            <button class="send-node-btn" id="btn-send">
+                <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+            </button>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
