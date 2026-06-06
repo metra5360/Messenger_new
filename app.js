@@ -1,24 +1,10 @@
-// НАЛАШТУВАННЯ SUPABASE (Залиш порожніми лапки для роботи в автономному демо-режимі)
-const SUPABASE_URL = ""; 
-const SUPABASE_KEY = ""; 
-
-let supabase = null;
-// Ретельно перевіряємо, чи вписані ключі, перед тим як викликати бібліотеку
-if (SUPABASE_URL !== "" && SUPABASE_KEY !== "") {
-    try {
-        supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } catch(e) {
-        console.error("Supabase ініціалізовано з помилкою, переходимо в офлайн", e);
-    }
-}
-
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 let userGlyphs = {}; 
 let isDesignMode = false;
 let currentLetterToEdit = null;
 let currentInputLetters = [];
 
-// Налаштування Canvas для малювання
+// Ініціалізація Canvas
 const canvas = document.getElementById('paint-canvas');
 const ctx = canvas.getContext('2d');
 let isDrawing = false;
@@ -28,7 +14,7 @@ ctx.lineWidth = 5;
 ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
 
-// Функції відстеження малювання
+// Логіка малювання
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', draw);
 canvas.addEventListener('mouseup', stopDrawing);
@@ -58,17 +44,15 @@ document.getElementById('btn-clear-canvas').onclick = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
-// Збереження малюнку гліфа
+// Кнопка Зберегти малюнок у клітинку
 document.getElementById('btn-save-canvas').onclick = () => {
     const imageData = canvas.toDataURL('image/png');
     userGlyphs[currentLetterToEdit] = imageData;
-    
     document.getElementById('drawing-popup').classList.remove('active');
-    document.getElementById('drawing-popup').setAttribute('aria-hidden', 'true');
     renderKeyboard();
 };
 
-// Генерація 26 клітинок матриці
+// Генерація 26 клітинок
 function renderKeyboard() {
     const grid = document.getElementById('keyboard-grid');
     if (!grid) return;
@@ -90,9 +74,7 @@ function renderKeyboard() {
                 currentLetterToEdit = letter;
                 document.getElementById('target-letter').innerText = letter;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const popup = document.getElementById('drawing-popup');
-                popup.classList.add('active');
-                popup.setAttribute('aria-hidden', 'false');
+                document.getElementById('drawing-popup').classList.add('active');
             } else {
                 currentInputLetters.push(letter);
                 renderPreview();
@@ -119,25 +101,22 @@ function renderPreview() {
     });
 }
 
-// Перемикач DESIGN MODE
+// Перемикач режиму DESIGN
 document.getElementById('btn-design-toggle').onclick = () => {
     isDesignMode = !isDesignMode;
     const btn = document.getElementById('btn-design-toggle');
     const statusText = document.getElementById('status-text');
-    const container = document.querySelector('.app-container');
     
     if (isDesignMode) {
         btn.classList.add('active');
         statusText.innerText = 'ON';
-        if (container) container.classList.add('design-mode-on');
     } else {
         btn.classList.remove('active');
         statusText.innerText = 'OFF';
-        if (container) container.classList.remove('design-mode-on');
     }
 };
 
-// Пробіл та Backspace
+// Кнопки управління
 document.getElementById('btn-space').onclick = () => {
     currentInputLetters.push(" ");
     renderPreview();
@@ -148,22 +127,17 @@ document.getElementById('btn-backspace').onclick = () => {
     renderPreview();
 };
 
-// Надсилання пакету в чат
-document.getElementById('btn-send').onclick = async () => {
+// Надіслати пакет
+document.getElementById('btn-send').onclick = () => {
     if (currentInputLetters.length === 0) return;
     
     const chatScreen = document.getElementById('chat-screen');
-    const rawText = currentInputLetters.join("");
     
     let msgHTML = '<div class="glyph-container">';
     currentInputLetters.forEach(letter => {
-        if (letter === " ") {
-            msgHTML += '<div style="width:12px;"></div>';
-        } else if (userGlyphs[letter]) {
-            msgHTML += `<img src="${userGlyphs[letter]}" class="glyph-img">`;
-        } else {
-            msgHTML += `<span style="color:#444; font-size:11px;">[${letter}]</span>`;
-        }
+        if (letter === " ") msgHTML += '<div style="width:12px;"></div>';
+        else if (userGlyphs[letter]) msgHTML += `<img src="${userGlyphs[letter]}" class="glyph-img">`;
+        else msgHTML += `<span style="color:#444; font-size:11px;">[${letter}]</span>`;
     });
     msgHTML += '</div>';
     
@@ -172,53 +146,10 @@ document.getElementById('btn-send').onclick = async () => {
     msgEl.innerHTML = msgHTML;
     chatScreen.appendChild(msgEl);
     
-    if (supabase) {
-        try {
-            await supabase.from('messages').insert([{ payload: rawText, glyphs_pack: userGlyphs }]);
-        } catch (e) {
-            console.error("Помилка бази даних:", e);
-        }
-    } else {
-        // Симуляція ехо-відповіді для автономного тестування
-        setTimeout(() => {
-            const replyEl = document.createElement('div');
-            replyEl.className = 'message incoming';
-            replyEl.innerHTML = `<small style="display:block; color:#555; font-size:9px; margin-bottom:4px;">ВХІДНИЙ ПАКЕТ:</small>${msgHTML}`;
-            chatScreen.appendChild(replyEl);
-            chatScreen.scrollTop = chatScreen.scrollHeight;
-        }, 1000);
-    }
-    
     currentInputLetters = [];
     renderPreview();
     chatScreen.scrollTop = chatScreen.scrollHeight;
 };
 
-// Слухач Supabase
-if (supabase) {
-    supabase
-        .channel('schema-db-changes')
-        .on('postgres_changes', { event: 'INSERT', pattern: 'public', table: 'messages' }, (payload) => {
-            const newMsg = payload.new;
-            const chatScreen = document.getElementById('chat-screen');
-            const foreignGlyphs = newMsg.glyphs_pack || {};
-            
-            let incomingHTML = '<div class="glyph-container">';
-            newMsg.payload.split("").forEach(letter => {
-                if (letter === " ") incomingHTML += '<div style="width:12px;"></div>';
-                else if (foreignGlyphs[letter]) incomingHTML += `<img src="${foreignGlyphs[letter]}" class="glyph-img">`;
-                else incomingHTML += `<span style="color:#555;">[${letter}]</span>`;
-            });
-            incomingHTML += '</div>';
-            
-            const msgEl = document.createElement('div');
-            msgEl.className = 'message incoming';
-            msgEl.innerHTML = incomingHTML;
-            chatScreen.appendChild(msgEl);
-            chatScreen.scrollTop = chatScreen.scrollHeight;
-        })
-        .subscribe();
-}
-
-// Старт
+// Запуск при старті
 renderKeyboard();
