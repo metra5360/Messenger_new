@@ -3,14 +3,13 @@ let userGlyphs = {};
 let isDesignMode = false;
 let currentLetterToEdit = null;
 let currentInputLetters = [];
-let currentTheme = "dark"; // Початкова тема
+let currentTheme = "dark"; 
 
 // Ініціалізація Canvas
 const canvas = document.getElementById('paint-canvas');
 const ctx = canvas.getContext('2d');
 let isDrawing = false;
 
-// Функція оновлення кольору лінії в залежності від теми
 function updateCanvasBrushColor() {
     ctx.strokeStyle = currentTheme === "dark" ? '#ffffff' : '#000000';
 }
@@ -19,7 +18,7 @@ ctx.lineWidth = 5;
 ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
 
-// Логіка малювання
+// Події малювання
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', draw);
 canvas.addEventListener('mouseup', stopDrawing);
@@ -49,15 +48,15 @@ document.getElementById('btn-clear-canvas').onclick = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
-// Збереження малюнку
 document.getElementById('btn-save-canvas').onclick = () => {
     const imageData = canvas.toDataURL('image/png');
     userGlyphs[currentLetterToEdit] = imageData;
     document.getElementById('drawing-popup').classList.remove('active');
     renderKeyboard();
+    renderPreview();
 };
 
-// Генерація клітинок
+// Генерація клавіатури
 function renderKeyboard() {
     const grid = document.getElementById('keyboard-grid');
     if (!grid) return;
@@ -79,7 +78,7 @@ function renderKeyboard() {
                 currentLetterToEdit = letter;
                 document.getElementById('target-letter').innerText = letter;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                updateCanvasBrushColor(); // Оновлюємо колір перед відкриттям
+                updateCanvasBrushColor(); 
                 document.getElementById('drawing-popup').classList.add('active');
             } else {
                 currentInputLetters.push(letter);
@@ -107,24 +106,27 @@ function renderPreview() {
     });
 }
 
-// Кнопка зміни ТЕМИ (Світла / Темна)
+// НАДІЙНИЙ ПЕРЕМИКАЧ ТЕМИ
 document.getElementById('btn-theme-toggle').onclick = () => {
-    const htmlEl = document.documentElement;
+    const container = document.querySelector('.app-container');
     const themeBtn = document.getElementById('btn-theme-toggle');
     
     if (currentTheme === "dark") {
         currentTheme = "light";
-        htmlEl.setAttribute('data-theme', 'light');
-        themeBtn.innerText = "🌙"; // Показуємо місяць, якщо зараз світло
+        container.setAttribute('data-theme', 'light');
+        themeBtn.innerText = "🌙";
     } else {
         currentTheme = "dark";
-        htmlEl.removeAttribute('data-theme');
-        themeBtn.innerText = "☀️"; // Показуємо сонце, якщо зараз темно
+        container.removeAttribute('data-theme');
+        themeBtn.innerText = "☀️";
     }
+    
     updateCanvasBrushColor();
+    renderKeyboard();  // Оновлюємо картинки під нову тему
+    renderPreview();   // Оновлюємо прев'ю під нову тему
 };
 
-// Перемикач DESIGN MODE
+// Перемикач DESIGN
 document.getElementById('btn-design-toggle').onclick = () => {
     isDesignMode = !isDesignMode;
     const btn = document.getElementById('btn-design-toggle');
@@ -139,7 +141,6 @@ document.getElementById('btn-design-toggle').onclick = () => {
     }
 };
 
-// Пробіл та Backspace
 document.getElementById('btn-space').onclick = () => {
     currentInputLetters.push(" ");
     renderPreview();
@@ -150,7 +151,6 @@ document.getElementById('btn-backspace').onclick = () => {
     renderPreview();
 };
 
-// Надіслати повідомлення
 document.getElementById('btn-send').onclick = () => {
     if (currentInputLetters.length === 0) return;
     
@@ -173,5 +173,4 @@ document.getElementById('btn-send').onclick = () => {
     chatScreen.scrollTop = chatScreen.scrollHeight;
 };
 
-// Запуск клавіатури
 renderKeyboard();
