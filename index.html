@@ -5,93 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cipher Architect</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="app-container">
-        <!-- Верхня панель у стилі скриншоту -->
         <header>
-            <div class="header-left">
-                <div class="shield-logo">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                </div>
+            <div class="brand-zone">
+                <div class="shield-icon">🛡️</div>
                 <div class="brand-text">
-                    <div class="brand-title">CIPHER</div>
-                    <div class="brand-subtitle">ARCHITECT</div>
+                    <div class="main-title">CIPHER</div>
+                    <div class="sub-title">ARCHITECT</div>
                 </div>
             </div>
-            <div class="header-right">
-                <div class="design-badge">
-                    <span class="badge-text">DESIGN OFF</span>
-                    <span class="badge-num">01<br>10</span>
-                </div>
-                <button class="share-btn" id="btn-share" title="Показати QR-код ключа">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="18" cy="5" r="3"/>
-                        <circle cx="6" cy="12" r="3"/>
-                        <circle cx="18" cy="19" r="3"/>
-                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                    </svg>
-                </button>
-            </div>
+            
+            <button class="design-toggle" id="btn-design-toggle">
+                <span class="toggle-text">DESIGN</span>
+                <span class="toggle-status" id="status-text">OFF</span>
+            </button>
         </header>
 
-        <!-- Панель синхронізації та генерації ключів -->
-        <div class="sync-panel">
-            <div class="input-group">
-                <input type="text" id="secret-seed" placeholder="Введіть секретний ключ або число">
-                <button id="btn-sync">GENERATE</button>
+        <div class="drawing-popup" id="drawing-popup">
+            <div class="popup-content">
+                <h3>Малюємо символ для літери: <span id="target-letter">A</span></h3>
+                <canvas id="paint-canvas" width="200" height="200"></canvas>
+                <div class="popup-actions">
+                    <button id="btn-clear-canvas">Очистити</button>
+                    <button id="btn-save-canvas" class="accent">Зберегти</button>
+                </div>
             </div>
-            <div class="sync-info">Введіть ОДНАКОВЕ число на обох пристроях для синхронізації матриці гліфів.</div>
         </div>
 
-        <!-- Екран повідомлень -->
         <main class="chat-screen" id="chat-screen">
-            <div class="message system">Канал зв'язку ініціалізовано. Очікування синхронізації матриці...</div>
+            <div class="message system">Канал активовано. Увімкніть DESIGN ON, щоб намалювати свій унікальний алфавіт.</div>
         </main>
 
-        <!-- Поле попереднього перегляду введення -->
-        <div class="input-preview-wrapper">
-            <div class="input-preview" id="input-preview" data-placeholder="Виберіть символи на сітці..."></div>
-            <button class="backspace-btn" id="btn-backspace" title="Видалити останній символ">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
-                    <line x1="18" y1="9" x2="12" y2="15"/>
-                    <line x1="12" y1="9" x2="18" y2="15"/>
-                </svg>
-            </button>
+        <div class="input-preview-row">
+            <div class="input-preview" id="input-preview" data-placeholder="Натискайте клітинки для введення..."></div>
+            <button class="backspace-btn" id="btn-backspace">⌫</button>
         </div>
 
-        <!-- Кастомна геометрична матриця клавіатури (24 клавіші, 4x6 як на фото) -->
-        <div class="keyboard-grid" id="keyboard-grid">
-            <!-- Згенерується динамічно через JS за допомогою векторних SVG ліній -->
-        </div>
+        <div class="keyboard-grid" id="keyboard-grid"></div>
 
-        <!-- Панель керування та відправки -->
         <div class="action-bar">
-            <div class="space-bar-wrapper">
-                <button class="space-bar" id="btn-space" title="Пробіл між словами">
-                    <div class="space-line"></div>
-                </button>
-            </div>
-            <button class="send-btn" id="btn-send" title="Відправити шифротекст">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"/>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                </svg>
+            <button class="space-bar" id="btn-space">
+                <div class="space-line"></div>
             </button>
-        </div>
-    </div>
-
-    <!-- Модальне вікно для отримання QR/коду для друга -->
-    <div class="modal" id="share-modal">
-        <div class="modal-content">
-            <h3>Синхронізація каналу</h3>
-            <p>Передайте це число вашому співрозмовнику. Тільки з цим числом його пристрій зможе розкодувати ваші символи.</p>
-            <div class="share-seed-value" id="share-seed-value">12345</div>
-            <button class="close-modal-btn" id="btn-close-modal">Зрозуміло</button>
+            <button class="send-btn" id="btn-send">🚀</button>
         </div>
     </div>
 
