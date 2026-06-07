@@ -4,18 +4,16 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 let supabase = null;
 
-// БЕЗПЕЧНА ПЕРЕВІРКА: додаток не зламається, навіть якщо ключів немає
-if (SUPABASE_URL !== "https://tvqnlyoyldeghqvqohdc.supabase.co" && SUPABASE_KEY !== "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cW5seW95bGRlZ2hxdnFvaGRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MDQ0ODgsImV4cCI6MjA5NjM4MDQ4OH0.xsuMzVm_fdG0rOvmqHXD3c1SnhjBUq1fAtWrcK-mAQ8") {
-    try {
-        if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log("Supabase успішно підключено!");
-        } else {
-            console.warn("Бібліотека Supabase не завантажилась з CDN.");
-        }
-    } catch (e) {
-        console.error("Помилка ініціалізації Supabase:", e);
+// Пряме та безпечне підключення до твоєї бази даних
+try {
+    if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase успішно підключено до ноди!");
+    } else {
+        console.warn("Клієнт Supabase не знайдено у вікні (window.supabase). Перевір CDN підключення в index.html.");
     }
+} catch (e) {
+    console.error("Критична помилка ініціалізації Supabase:", e);
 }
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -28,7 +26,7 @@ let currentTheme = "dark";
 let username = "Anonymous";
 let roomID = "000";
 
-// ВИПРАВЛЕНО: Кнопка тепер точно спрацює за будь-яких умов!
+// Обробка авторизації та входу в кімнату
 document.getElementById('btn-login').onclick = () => {
     const userIn = document.getElementById('input-username').value.trim();
     const roomIn = document.getElementById('input-room').value.trim();
@@ -54,9 +52,7 @@ document.getElementById('btn-login').onclick = () => {
     }
 };
 
-// === ДАЛІ ЙДЕ ТВІЙ КОД ІНІЦІАЛІЗАЦІЇ CANVAS ЯК І РАНІШЕ ===
-// const canvas = document.getElementById('paint-canvas'); ...
-// Ініціалізація Canvas
+// Ініціалізація Canvas для малювання
 const canvas = document.getElementById('paint-canvas');
 const ctx = canvas.getContext('2d');
 let isDrawing = false;
@@ -93,7 +89,7 @@ function stopDrawing() { isDrawing = false; }
 
 document.getElementById('btn-clear-canvas').onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-// Збереження гліфа
+// Збереження гліфа та синхронізація
 document.getElementById('btn-save-canvas').onclick = async () => {
     const imageData = canvas.toDataURL('image/png');
     userGlyphs[currentLetterToEdit] = imageData;
@@ -113,7 +109,7 @@ document.getElementById('btn-save-canvas').onclick = async () => {
     }
 };
 
-// Завантаження гліфів з бази
+// Завантаження історичних гліфів з бази даних кімнати
 async function loadExistingGlyphs() {
     const { data, error } = await supabase
         .from('glyphs')
@@ -128,9 +124,9 @@ async function loadExistingGlyphs() {
     }
 }
 
-// Прослуховування бази в реальному часі
+// Прослуховування потоку даних в реальному часі (Realtime стрім)
 function listenToIncomingData() {
-    // Стрім нових гліфів
+    // Стрім нових гліфів від друга
     supabase
         .channel('glyphs-room-stream')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'glyphs', filter: `room_id=eq.${roomID}` }, (payload) => {
@@ -143,7 +139,7 @@ function listenToIncomingData() {
         })
         .subscribe();
 
-    // Стрім повідомлень
+    // Стрім текстових повідомлень у кімнаті
     supabase
         .channel('messages-room-stream')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomID}` }, (payload) => {
@@ -155,7 +151,7 @@ function listenToIncomingData() {
         .subscribe();
 }
 
-// Генерація кнопок
+// Рендеринг інтерфейсу клавіатури
 function renderKeyboard() {
     const grid = document.getElementById('keyboard-grid');
     if (!grid) return;
@@ -203,7 +199,7 @@ function renderPreview() {
     });
 }
 
-// Зміна теми
+// Моментальне перемикання теми (Сонце / Місяць)
 document.getElementById('btn-theme-toggle').onclick = () => {
     const container = document.querySelector('.app-container');
     const themeBtn = document.getElementById('btn-theme-toggle');
@@ -222,7 +218,7 @@ document.getElementById('btn-theme-toggle').onclick = () => {
     renderPreview();
 };
 
-// Перемикач DESIGN MODE
+// Перемикач режимів DESIGN MODE
 document.getElementById('btn-design-toggle').onclick = () => {
     isDesignMode = !isDesignMode;
     const btn = document.getElementById('btn-design-toggle');
@@ -240,7 +236,7 @@ document.getElementById('btn-design-toggle').onclick = () => {
 document.getElementById('btn-space').onclick = () => { currentInputLetters.push(" "); renderPreview(); };
 document.getElementById('btn-backspace').onclick = () => { currentInputLetters.pop(); renderPreview(); };
 
-// Відправка
+// Обробка надсилання зашифрованого фрейму
 document.getElementById('btn-send').onclick = async () => {
     if (currentInputLetters.length === 0) return;
     
