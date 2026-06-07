@@ -139,6 +139,41 @@ async function loadExistingGlyphs() {
 function listenToIncomingData() {
     if (!supabaseClient) return;
 
+    console.log("Запуск прослуховування кімнати: " + roomID);
+
+    // Стрім нових гліфів
+    supabaseClient
+        .channel('glyphs-changes')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'glyphs' }, (payload) => {
+            const incoming = payload.new;
+            // Фільтруємо кімнату та користувача прямо в коді
+            if (incoming.room_id === roomID && incoming.user_name !== username) { 
+                console.log("Отримано новий гліф для: " + incoming.letter);
+                userGlyphs[incoming.letter] = incoming.image_base64;
+                renderKeyboard();
+                renderPreview();
+            }
+        })
+        .subscribe((status) => {
+            console.log("Статус підписки на гліфи:", status);
+        });
+
+    // Стрім текстових повідомлень
+    supabaseClient
+        .channel('messages-changes')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+            const msg = payload.new;
+            // Фільтруємо кімнату та користувача прямо в коді
+            if (msg.room_id === roomID && msg.user_name !== username) {
+                console.log("Отримано нове повідомлення від: " + msg.user_name);
+                displayIncomingMessage(msg.user_name, msg.payload_text);
+            }
+        })
+        .subscribe((status) => {
+            console.log("Статус підписки на повідомлення:", status);
+        });
+}
+
     // Стрім нових гліфів від друга
     supabaseClient
         .channel('glyphs-room-stream')
