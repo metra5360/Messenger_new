@@ -1,11 +1,11 @@
 // === НАЛАШТУВАННЯ SUPABASE ===
-const SUPABASE_URL = "ТВІЙ_SUPABASE_URL"; 
-const SUPABASE_KEY = "ТВІЙ_SUPABASE_KEY"; 
+const SUPABASE_URL = "https://tvqnlyoyldeghqvqohdc.supabase.co"; 
+const SUPABASE_KEY = "sb_publishable_qWqOvkVklFaN7KQxkEphYA_b7N1yf4X"; 
 
 let supabase = null;
 
 // БЕЗПЕЧНА ПЕРЕВІРКА: додаток не зламається, навіть якщо ключів немає
-if (SUPABASE_URL !== "ТВІЙ_SUPABASE_URL" && SUPABASE_KEY !== "ТВІЙ_SUPABASE_KEY") {
+if (SUPABASE_URL !== "https://tvqnlyoyldeghqvqohdc.supabase.co" && SUPABASE_KEY !== "sb_publishable_qWqOvkVklFaN7KQxkEphYA_b7N1yf4X") {
     try {
         if (window.supabase) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
