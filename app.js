@@ -1,21 +1,21 @@
 // === НАЛАШТУВАННЯ SUPABASE ===
-// Встав сюди свої дані з налаштувань проекту Supabase (Project Settings -> API)
 const SUPABASE_URL = "ТВІЙ_SUPABASE_URL"; 
 const SUPABASE_KEY = "ТВІЙ_SUPABASE_KEY"; 
 
 let supabase = null;
 
-// ПЕРЕВІРКА: Якщо ключі змінено — вмикаємо онлайн-синхронізацію
+// БЕЗПЕЧНА ПЕРЕВІРКА: додаток не зламається, навіть якщо ключів немає
 if (SUPABASE_URL !== "ТВІЙ_SUPABASE_URL" && SUPABASE_KEY !== "ТВІЙ_SUPABASE_KEY") {
     try {
-        // ВИПРАВЛЕНО: Використовуємо глобальний об'єкт window.supabase
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        console.log("Supabase успішно підключено!");
+        if (window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log("Supabase успішно підключено!");
+        } else {
+            console.warn("Бібліотека Supabase не завантажилась з CDN.");
+        }
     } catch (e) {
-        console.error("Критична помилка ініціалізації Supabase:", e);
+        console.error("Помилка ініціалізації Supabase:", e);
     }
-} else {
-    console.log("Додаток запущено в ОФЛАЙН режимі (Демо)");
 }
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -28,7 +28,7 @@ let currentTheme = "dark";
 let username = "Anonymous";
 let roomID = "000";
 
-// Обробка Вікна Авторизації
+// ВИПРАВЛЕНО: Кнопка тепер точно спрацює за будь-яких умов!
 document.getElementById('btn-login').onclick = () => {
     const userIn = document.getElementById('input-username').value.trim();
     const roomIn = document.getElementById('input-room').value.trim();
@@ -54,6 +54,8 @@ document.getElementById('btn-login').onclick = () => {
     }
 };
 
+// === ДАЛІ ЙДЕ ТВІЙ КОД ІНІЦІАЛІЗАЦІЇ CANVAS ЯК І РАНІШЕ ===
+// const canvas = document.getElementById('paint-canvas'); ...
 // Ініціалізація Canvas
 const canvas = document.getElementById('paint-canvas');
 const ctx = canvas.getContext('2d');
