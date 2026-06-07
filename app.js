@@ -1,11 +1,11 @@
 // === НАЛАШТУВАННЯ SUPABASE ===
 const SUPABASE_URL = "https://tvqnlyoyldeghqvqohdc.supabase.co"; 
-const SUPABASE_KEY = "sb_publishable_qWqOvkVklFaN7KQxkEphYA_b7N1yf4X"; 
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cW5seW95bGRlZ2hxdnFvaGRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MDQ0ODgsImV4cCI6MjA5NjM4MDQ4OH0.xsuMzVm_fdG0rOvmqHXD3c1SnhjBUq1fAtWrcK-mAQ8"; 
 
 let supabase = null;
 
 // БЕЗПЕЧНА ПЕРЕВІРКА: додаток не зламається, навіть якщо ключів немає
-if (SUPABASE_URL !== "https://tvqnlyoyldeghqvqohdc.supabase.co" && SUPABASE_KEY !== "sb_publishable_qWqOvkVklFaN7KQxkEphYA_b7N1yf4X") {
+if (SUPABASE_URL !== "https://tvqnlyoyldeghqvqohdc.supabase.co" && SUPABASE_KEY !== "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cW5seW95bGRlZ2hxdnFvaGRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MDQ0ODgsImV4cCI6MjA5NjM4MDQ4OH0.xsuMzVm_fdG0rOvmqHXD3c1SnhjBUq1fAtWrcK-mAQ8") {
     try {
         if (window.supabase) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
