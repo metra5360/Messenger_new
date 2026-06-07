@@ -4,13 +4,23 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 let supabase = null;
 
-// Пряме та безпечне підключення до твоєї бази даних
+// ВИПРАВЛЕНО: Залізобетонна ініціалізація під CDN версії 2
 try {
-    if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        console.log("Supabase успішно підключено до ноди!");
+    // У v2 версії використовується глобальний об'єкт з великої чи малої літери, перевіряємо обидва варіанти
+    const supabaseLib = window.supabase || (window.Supabase ? window.Supabase : null);
+    
+    if (supabaseLib && typeof supabaseLib.createClient === 'font-size') { // Перевірка на наявність функції
+        supabase = supabaseLib.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase успішно підключено!");
+    } else if (supabaseLib && typeof supabaseLib === 'function') {
+        supabase = supabaseLib(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase успішно підключено через конструктор!");
     } else {
-        console.warn("Клієнт Supabase не знайдено у вікні (window.supabase). Перевір CDN підключення в index.html.");
+        console.warn("Клієнт Supabase не знайдено. Перевіряємо прямий експорт...");
+        // Спроба викликати метод напряму, якщо об'єкт прийшов без window
+        if (typeof createClient !== 'undefined') {
+            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
     }
 } catch (e) {
     console.error("Критична помилка ініціалізації Supabase:", e);
@@ -111,21 +121,27 @@ document.getElementById('btn-save-canvas').onclick = async () => {
 
 // Завантаження історичних гліфів з бази даних кімнати
 async function loadExistingGlyphs() {
-    const { data, error } = await supabase
-        .from('glyphs')
-        .select('*')
-        .eq('room_id', roomID);
-        
-    if (data && !error) {
-        data.forEach(item => {
-            userGlyphs[item.letter] = item.image_base64;
-        });
-        renderKeyboard();
+    try {
+        const { data, error } = await supabase
+            .from('glyphs')
+            .select('*')
+            .eq('room_id', roomID);
+            
+        if (data && !error) {
+            data.forEach(item => {
+                userGlyphs[item.letter] = item.image_base64;
+            });
+            renderKeyboard();
+        }
+    } catch (e) {
+        console.error("Не вдалося завантажити гліфи:", e);
     }
 }
 
 // Прослуховування потоку даних в реальному часі (Realtime стрім)
 function listenToIncomingData() {
+    if (!supabase) return;
+
     // Стрім нових гліфів від друга
     supabase
         .channel('glyphs-room-stream')
@@ -236,7 +252,7 @@ document.getElementById('btn-design-toggle').onclick = () => {
 document.getElementById('btn-space').onclick = () => { currentInputLetters.push(" "); renderPreview(); };
 document.getElementById('btn-backspace').onclick = () => { currentInputLetters.pop(); renderPreview(); };
 
-// Обробка надсилання зашифрованого фрейму
+// Обробка надсилання тексту
 document.getElementById('btn-send').onclick = async () => {
     if (currentInputLetters.length === 0) return;
     
@@ -291,4 +307,5 @@ function displayIncomingMessage(sender, text) {
     chatScreen.scrollTop = chatScreen.scrollHeight;
 }
 
+// Початковий запуск клавіатури
 renderKeyboard();
