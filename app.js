@@ -4,23 +4,18 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 let supabase = null;
 
-// ВИПРАВЛЕНО: Залізобетонна ініціалізація під CDN версії 2
+// ВИПРАВЛЕНО: Коректна ініціалізація клієнта Supabase v2 CDN
 try {
-    // У v2 версії використовується глобальний об'єкт з великої чи малої літери, перевіряємо обидва варіанти
     const supabaseLib = window.supabase || (window.Supabase ? window.Supabase : null);
     
-    if (supabaseLib && typeof supabaseLib.createClient === 'font-size') { // Перевірка на наявність функції
+    if (supabaseLib && typeof supabaseLib.createClient === 'function') { 
         supabase = supabaseLib.createClient(SUPABASE_URL, SUPABASE_KEY);
         console.log("Supabase успішно підключено!");
-    } else if (supabaseLib && typeof supabaseLib === 'function') {
-        supabase = supabaseLib(SUPABASE_URL, SUPABASE_KEY);
-        console.log("Supabase успішно підключено через конструктор!");
+    } else if (typeof createClient === 'function') {
+        supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase успішно підключено через прямий експорт!");
     } else {
-        console.warn("Клієнт Supabase не знайдено. Перевіряємо прямий експорт...");
-        // Спроба викликати метод напряму, якщо об'єкт прийшов без window
-        if (typeof createClient !== 'undefined') {
-            supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
+        console.warn("Клієнт Supabase не знайдено в глобальній області.");
     }
 } catch (e) {
     console.error("Критична помилка ініціалізації Supabase:", e);
@@ -121,6 +116,7 @@ document.getElementById('btn-save-canvas').onclick = async () => {
 
 // Завантаження історичних гліфів з бази даних кімнати
 async function loadExistingGlyphs() {
+    if (!supabase) return;
     try {
         const { data, error } = await supabase
             .from('glyphs')
@@ -131,11 +127,11 @@ async function loadExistingGlyphs() {
             data.forEach(item => {
                 userGlyphs[item.letter] = item.image_base64;
             });
-            renderKeyboard();
         }
     } catch (e) {
         console.error("Не вдалося завантажити гліфи:", e);
     }
+    renderKeyboard(); // Перемальовуємо у будь-якому випадку, щоб клавіатура не зникала
 }
 
 // Прослуховування потоку даних в реальному часі (Realtime стрім)
@@ -307,5 +303,5 @@ function displayIncomingMessage(sender, text) {
     chatScreen.scrollTop = chatScreen.scrollHeight;
 }
 
-// Початковий запуск клавіатури
+// Початковий запуск клавіатури за замовчуванням
 renderKeyboard();
