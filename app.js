@@ -2,21 +2,17 @@
 const SUPABASE_URL = "https://tvqnlyoyldeghqvqohdc.supabase.co"; 
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cW5seW95bGRlZ2hxdnFvaGRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MDQ0ODgsImV4cCI6MjA5NjM4MDQ4OH0.xsuMzVm_fdG0rOvmqHXD3c1SnhjBUq1fAtWrcK-mAQ8"; 
 
-// Змінено назву, щоб не було конфлікту з глобальним об'єктом бібліотеки
 let supabaseClient = null;
 
 try {
-    // CDN версії 2 зазвичай записує метод у window.supabase
     if (window.supabase && typeof window.supabase.createClient === 'function') {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         console.log("Supabase підключено успішно!");
+    } else if (typeof createClient === 'function') {
+        supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Підключено через прямий експорт createClient!");
     } else {
-        console.warn("Не вдалося знайти window.supabase.createClient. Перевіряємо альтернативи...");
-        // Спроба для деяких збірок v2
-        if (typeof createClient === 'function') {
-            supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log("Підключено через прямий експорт createClient!");
-        }
+        console.warn("Не вдалося знайти ініціалізатор Supabase.");
     }
 } catch (e) {
     console.error("Критична помилка ініціалізації клієнта:", e);
@@ -146,7 +142,6 @@ function listenToIncomingData() {
         .channel('glyphs-changes')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'glyphs' }, (payload) => {
             const incoming = payload.new;
-            // Фільтруємо кімнату та користувача прямо в коді
             if (incoming.room_id === roomID && incoming.user_name !== username) { 
                 console.log("Отримано новий гліф для: " + incoming.letter);
                 userGlyphs[incoming.letter] = incoming.image_base64;
@@ -163,7 +158,6 @@ function listenToIncomingData() {
         .channel('messages-changes')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
             const msg = payload.new;
-            // Фільтруємо кімнату та користувача прямо в коді
             if (msg.room_id === roomID && msg.user_name !== username) {
                 console.log("Отримано нове повідомлення від: " + msg.user_name);
                 displayIncomingMessage(msg.user_name, msg.payload_text);
@@ -172,31 +166,6 @@ function listenToIncomingData() {
         .subscribe((status) => {
             console.log("Статус підписки на повідомлення:", status);
         });
-}
-
-    // Стрім нових гліфів від друга
-    supabaseClient
-        .channel('glyphs-room-stream')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'glyphs', filter: `room_id=eq.${roomID}` }, (payload) => {
-            const incoming = payload.new;
-            if (incoming.user_name !== username) { 
-                userGlyphs[incoming.letter] = incoming.image_base64;
-                renderKeyboard();
-                renderPreview();
-            }
-        })
-        .subscribe();
-
-    // Стрім текстових повідомлень у кімнаті
-    supabaseClient
-        .channel('messages-room-stream')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomID}` }, (payload) => {
-            const msg = payload.new;
-            if (msg.user_name !== username) {
-                displayIncomingMessage(msg.user_name, msg.payload_text);
-            }
-        })
-        .subscribe();
 }
 
 // Рендеринг інтерфейсу клавіатури
@@ -339,5 +308,5 @@ function displayIncomingMessage(sender, text) {
     chatScreen.scrollTop = chatScreen.scrollHeight;
 }
 
-// Початковий рендер порожньої матриці
+// Початковий рендер клавіатури
 renderKeyboard();
