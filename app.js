@@ -2,23 +2,24 @@
 const SUPABASE_URL = "https://tvqnlyoyldeghqvqohdc.supabase.co"; 
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cW5seW95bGRlZ2hxdnFvaGRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MDQ0ODgsImV4cCI6MjA5NjM4MDQ4OH0.xsuMzVm_fdG0rOvmqHXD3c1SnhjBUq1fAtWrcK-mAQ8"; 
 
-let supabase = null;
+// Змінено назву, щоб не було конфлікту з глобальним об'єктом бібліотеки
+let supabaseClient = null;
 
-// ВИПРАВЛЕНО: Коректна ініціалізація клієнта Supabase v2 CDN
 try {
-    const supabaseLib = window.supabase || (window.Supabase ? window.Supabase : null);
-    
-    if (supabaseLib && typeof supabaseLib.createClient === 'function') { 
-        supabase = supabaseLib.createClient(SUPABASE_URL, SUPABASE_KEY);
-        console.log("Supabase успішно підключено!");
-    } else if (typeof createClient === 'function') {
-        supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-        console.log("Supabase успішно підключено через прямий експорт!");
+    // CDN версії 2 зазвичай записує метод у window.supabase
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase підключено успішно!");
     } else {
-        console.warn("Клієнт Supabase не знайдено в глобальній області.");
+        console.warn("Не вдалося знайти window.supabase.createClient. Перевіряємо альтернативи...");
+        // Спроба для деяких збірок v2
+        if (typeof createClient === 'function') {
+            supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log("Підключено через прямий експорт createClient!");
+        }
     }
 } catch (e) {
-    console.error("Критична помилка ініціалізації Supabase:", e);
+    console.error("Критична помилка ініціалізації клієнта:", e);
 }
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -48,7 +49,7 @@ document.getElementById('btn-login').onclick = () => {
     document.getElementById('meta-room').innerText = roomID;
     document.getElementById('auth-screen').classList.add('hidden');
     
-    if (supabase) {
+    if (supabaseClient) {
         document.getElementById('sync-status').innerText = "ONLINE // ROOM SYNC";
         loadExistingGlyphs(); 
         listenToIncomingData(); 
@@ -103,9 +104,9 @@ document.getElementById('btn-save-canvas').onclick = async () => {
     renderKeyboard();
     renderPreview();
 
-    if (supabase) {
+    if (supabaseClient) {
         try {
-            await supabase.from('glyphs').insert([
+            await supabaseClient.from('glyphs').insert([
                 { room_id: roomID, user_name: username, letter: currentLetterToEdit, image_base64: imageData }
             ]);
         } catch (err) {
@@ -116,9 +117,9 @@ document.getElementById('btn-save-canvas').onclick = async () => {
 
 // Завантаження історичних гліфів з бази даних кімнати
 async function loadExistingGlyphs() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('glyphs')
             .select('*')
             .eq('room_id', roomID);
@@ -131,15 +132,15 @@ async function loadExistingGlyphs() {
     } catch (e) {
         console.error("Не вдалося завантажити гліфи:", e);
     }
-    renderKeyboard(); // Перемальовуємо у будь-якому випадку, щоб клавіатура не зникала
+    renderKeyboard(); 
 }
 
 // Прослуховування потоку даних в реальному часі (Realtime стрім)
 function listenToIncomingData() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
 
     // Стрім нових гліфів від друга
-    supabase
+    supabaseClient
         .channel('glyphs-room-stream')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'glyphs', filter: `room_id=eq.${roomID}` }, (payload) => {
             const incoming = payload.new;
@@ -152,7 +153,7 @@ function listenToIncomingData() {
         .subscribe();
 
     // Стрім текстових повідомлень у кімнаті
-    supabase
+    supabaseClient
         .channel('messages-room-stream')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomID}` }, (payload) => {
             const msg = payload.new;
@@ -255,9 +256,9 @@ document.getElementById('btn-send').onclick = async () => {
     const rawText = currentInputLetters.join("");
     displayOutgoingMessage(rawText);
     
-    if (supabase) {
+    if (supabaseClient) {
         try {
-            await supabase.from('messages').insert([
+            await supabaseClient.from('messages').insert([
                 { room_id: roomID, user_name: username, payload_text: rawText }
             ]);
         } catch (e) {
@@ -303,5 +304,5 @@ function displayIncomingMessage(sender, text) {
     chatScreen.scrollTop = chatScreen.scrollHeight;
 }
 
-// Початковий запуск клавіатури за замовчуванням
+// Початковий рендер порожньої матриці
 renderKeyboard();
